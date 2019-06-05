@@ -1,86 +1,119 @@
-new Vue({
-    el: '#app',
-    data: {
-        gameStarted: false,
-        playerBar: {
-            width: '100',
-            health: 100
+const vi = new Vue({
+        el: '#app',
+        data: {
+                gameStarted: false,
+                playerBar: {
+                        width: '100',
+                        health: 100,
+                },
+                monsterBar: {
+                        width: '100',
+                        health: 100,
+                },
+                battleLog: [],
         },
-        monsterBar: {
-            width: '100',
-            health: 100
+        methods: {
+                startGame() {
+                        this.gameStarted = true;
+                        this.playerBar.health = 100;
+                        this.playerBar.width = '100%';
+                        this.monsterBar.health = 100;
+                        this.monsterBar.width = '100%';
+                        this.battleLog = [];
+                },
+                attack() {
+                        const pBar = this.playerBar;
+                        const mBar = this.monsterBar;
+                        const pAttack = this.playerAttack(10, 20);
+                        const mAttack = this.monsterAttack(10, 20);
+                        mBar.health -= pAttack;
+                        mBar.width = `${mBar.health}%`;
+                        this.battleLog.unshift({
+                                name: 'MONSTER',
+                                target: 'PLAYER',
+                                action: 'ATTACKS',
+                                hp: mAttack,
+                        });
+                        this.battleLog.unshift({
+                                name: 'PLAYER',
+                                target: 'MONSTER',
+                                action: 'ATTACKS',
+                                hp: pAttack,
+                        });
+
+                        if (mBar.health <= 0) {
+                                if (confirm('You defeated the monster!!! Would you like to play again?')) {
+                                        return this.startGame();
+                                }
+                                return (this.gameStarted = false);
+                        }
+                        pBar.health -= mAttack;
+                        pBar.width = `${pBar.health}%`;
+
+                        if (pBar.health <= 0) {
+                                if (confirm('The monster killed you!! Would you like to play again?')) {
+                                        return this.startGame();
+                                }
+                                return (this.gameStarted = false);
+                        }
+                },
+                specialAttack() {
+                        const pBar = this.playerBar;
+                        const mBar = this.monsterBar;
+                        const pAttack = this.playerAttack(20, 30);
+                        const mAttack = this.monsterAttack(20, 30);
+                        mBar.health -= pAttack;
+                        mBar.width = `${mBar.health}%`;
+                        this.battleLog.unshift({
+                                name: 'MONSTER',
+                                target: 'PLAYER',
+                                action: 'USES A SPECIAL ATTACK ON',
+                                hp: mAttack,
+                        });
+                        this.battleLog.unshift({
+                                name: 'PLAYER',
+                                target: 'MONSTER',
+                                action: 'USES A SPECIAL ATTACK ON',
+                                hp: pAttack,
+                        });
+
+                        if (mBar.health <= 0) {
+                                if (confirm('You defeated the monster!!! Would you like to play again?')) {
+                                        return this.startGame();
+                                }
+                                return (this.gameStarted = false);
+                        }
+                        pBar.health -= mAttack;
+                        pBar.width = `${pBar.health}%`;
+
+                        if (pBar.health <= 0) {
+                                if (confirm('The monster killed you!! Would you like to play again?')) {
+                                        return this.startGame();
+                                }
+                                return (this.gameStarted = false);
+                        }
+                },
+                heal() {
+                        const pBar = this.playerBar;
+                        let pHeal = 20;
+                        const mAttack = this.monsterAttack(5, 20);
+                        if (pBar.health < 80) {
+                                pBar.health += 20;
+                        } else {
+                                pHeal = 100 - pBar.health;
+                                pBar.health = 100;
+                        }
+                        pBar.health -= mAttack;
+                        pBar.width = `${pBar.health}%`;
+
+                        this.battleLog.unshift({ name: 'MONSTER', target: 'PLAYER', action: 'ATTACKS', hp: mAttack });
+                        this.battleLog.unshift({ name: 'PLAYER', action: 'HEALS', hp: pHeal });
+                },
+                monsterAttack(min, max) {
+                        return Math.floor(Math.random() * (max - min) + min);
+                },
+                playerAttack(min, max) {
+                        return Math.floor(Math.random() * (max - min) + min);
+                },
         },
-        battleLog: []
-    },
-    methods: {
-        startGame: function() {
-            this.gameStarted = !this.gameStarted
-            this.playerBar.health = 100
-            this.playerBar.width = '100%'
-            this.monsterBar.health = 100
-            this.monsterBar.width = '100%'
-            this.battleLog = []
-        },
-        attack: function() {
-            let pBar = this.playerBar
-            let mBar = this.monsterBar
-            let pAttack = Math.floor(Math.random()*(15-5) + 5);
-            let mAttack = Math.floor(Math.random()*(15-5) + 5);
-            pBar.health -= mAttack
-            pBar.width = pBar.health + '%'
-            mBar.health -= pAttack
-            mBar.width = mBar.health + '%'
-
-            this.battleLog.push({name: 'PLAYER',
-            target: 'MONSTER', action: 'ATTACKS', hp: pAttack})
-            this.battleLog.push({name: 'MONSTER', target: 'PLAYER', action: 'ATTACKS', hp: mAttack})
-
-            if(mBar.health && pBar.health <= 0){
-                alert('You and the monster have both fallen...')
-                return this.gameStarted = !this.gameStarted
-            }else if(mBar.health <= 0) {
-                alert('You defeated the monster!!!')
-                return this.gameStarted = !this.gameStarted
-            } else if(pBar.health <= 0) {
-                alert('The monster killed you!!')
-                return this.gameStarted = !this.gameStarted
-            }
-
-        },
-        specialAttack: function() {
-            let pBar = this.playerBar
-            let mBar = this.monsterBar
-            let pAttack = Math.floor(Math.random()*(35-20) + 20);
-            let mAttack = Math.floor(Math.random()*(35-20) + 20);
-            pBar.health -= mAttack
-            pBar.width = pBar.health + '%'
-            mBar.health -= pAttack
-            mBar.width = mBar.health + '%'
-
-            this.battleLog.push({name: 'PLAYER',
-            target: 'MONSTER', action: 'USES A SPECIAL ATTACK ON', hp: pAttack})
-            this.battleLog.push({name: 'MONSTER', target: 'PLAYER', action: 'USES A SPECIAL ATTACK ON', hp: mAttack})
-
-            if(mBar.health && pBar.health <= 0){
-                alert('You and the monster have both fallen...')
-                return this.gameStarted = !this.gameStarted
-            }else if(mBar.health <= 0) {
-                alert('You defeated the monster!!!')
-                return this.gameStarted = !this.gameStarted
-            } else if(pBar.health <= 0) {
-                alert('The monster killed you!!')
-                return this.gameStarted = !this.gameStarted
-            }
-        },
-        heal: function() {
-            let pBar = this.playerBar
-            let pHeal = Math.floor(Math.random()*(40-30) + 30);
-            let mAttack = Math.floor(Math.random()*(30-15) + 15);
-            pBar.health += pHeal - mAttack
-            pBar.width = pBar.health + '%'
-
-            this.battleLog.push({name: 'PLAYER', action: 'HEALS', hp: pHeal})
-            this.battleLog.push({name: 'MONSTER', target: 'PLAYER', action: 'ATTACKS', hp: mAttack})
-        }
-    }
-})
+});
